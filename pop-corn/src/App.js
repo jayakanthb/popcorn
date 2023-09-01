@@ -141,6 +141,7 @@ function ListBox(){
                 <span>{movie.Year}</span>
               </p>
             </div>
+            
           </li>
         ))}
       </ul>
