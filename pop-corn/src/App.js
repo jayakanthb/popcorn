@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Children, useState } from "react";
 
 const tempMovieData = [
   {
@@ -51,11 +51,25 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 export default function App() {
-
+  const [movies, setMovies] = useState(tempMovieData);
+  const [watched, setWatched] = useState(tempWatchedData);
   return (
     <>     
- <NavBar  />
- <MainBar />
+       <NavBar>
+        <Logo />
+        <Search />
+        <NumResult movies={movies} /> 
+        </NavBar>
+
+      <MainBar>
+      <Box>
+      <MovieLists movies={movies} />  
+       </Box>
+      <Box>
+      <WatchedSummary watched={watched} />
+        <WatchedMovieList watched={watched} />
+      </Box>
+       </MainBar>
       
     </>
   );
@@ -63,12 +77,10 @@ export default function App() {
 
 
 
-function NavBar() { 
+function NavBar({children}) { 
   return (
     <nav className="nav-bar">
-        <Logo />
-        <Search />
-        <NumResult />
+        {children}
       </nav>
   )  
 }
@@ -95,67 +107,40 @@ function Search (){
   )
 }
 
-function NumResult (){
+function NumResult ({movies}){
   return (
 <p className="num-results">
-          Found <strong>x</strong> results
+          Found <strong>{movies.length}</strong> results
         </p>
   )
 }
 
-function MainBar() {
-  
- 
-
+function MainBar({children}) {
   return (
   <main className="main">
-  <ListBox />
-  <WatchBox />
-
-  
+  {children}
 </main>)
 }
 
-function ListBox(){
-
-  const [movies, setMovies] = useState(tempMovieData);
-
-  const [isOpen1, setIsOpen1] = useState(true);
+function Box({children}){
+  const [isOpen, setIsOpen] = useState(true);
   return (
     <div className="box">
     <button
       className="btn-toggle"
-      onClick={() => setIsOpen1((open) => !open)}
+      onClick={() => setIsOpen((open) => !open)}
     >
-      {isOpen1 ? "–" : "+"}
+      {isOpen ? "–" : "+"}
     </button>
-    {isOpen1 && (
-      <ul className="list">
-        {movies?.map((movie) => (
-          <li key={movie.imdbID}>
-            <img src={movie.Poster} alt={`${movie.Title} poster`} />
-            <h3>{movie.Title}</h3>
-            <div>
-              <p>
-                <span>🗓</span>
-                <span>{movie.Year}</span>
-              </p>
-            </div>
-            
-          </li>
-        ))}
-      </ul>
-    )}
+    {isOpen && children}
   </div>
   )
 }
 
+/*
 function WatchBox (){
   const [watched, setWatched] = useState(tempWatchedData);
   const [isOpen2, setIsOpen2] = useState(true);
-  const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
-  const avgUserRating = average(watched.map((movie) => movie.userRating));
-  const avgRuntime = average(watched.map((movie) => movie.runtime));
   return (
   <div className="box">
     <button
@@ -166,7 +151,49 @@ function WatchBox (){
     </button>
     {isOpen2 && (
       <>
-        <div className="summary">
+        <WatchedSummary watched={watched} />
+        <WatchedMovieList watched={watched} />
+      </>
+    )}
+  </div>
+  )
+}
+*/
+
+function MovieLists ({movies}){
+return (
+  <ul className="list">
+        {movies?.map((movie) => (
+         <Movie movie={movie} key={movie.imdbID}/>
+        ))}
+      </ul>
+)
+}
+
+function Movie({movie}){
+  return (
+    <li>
+    <img src={movie.Poster} alt={`${movie.Title} poster`} />
+    <h3>{movie.Title}</h3>
+    <div>
+      <p>
+        <span>🗓</span>
+        <span>{movie.Year}</span>
+      </p>
+    </div>
+    
+  </li>
+  )
+}
+
+
+
+function WatchedSummary ({watched}){
+  const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
+  const avgUserRating = average(watched.map((movie) => movie.userRating));
+  const avgRuntime = average(watched.map((movie) => movie.runtime));
+  return (
+    <div className="summary">
           <h2>Movies you watched</h2>
           <div>
             <p>
@@ -187,10 +214,22 @@ function WatchBox (){
             </p>
           </div>
         </div>
+  )
+}
 
-        <ul className="list">
+function WatchedMovieList({watched}){
+  return (
+    <ul className="list">
           {watched.map((movie) => (
-            <li key={movie.imdbID}>
+            <WatchedList movie={movie} key={movie.imdbID}/>
+          ))}
+        </ul>
+  )
+}
+
+function WatchedList ({movie}){
+  return (
+    <li >
               <img src={movie.Poster} alt={`${movie.Title} poster`} />
               <h3>{movie.Title}</h3>
               <div>
@@ -208,13 +247,9 @@ function WatchBox (){
                 </p>
               </div>
             </li>
-          ))}
-        </ul>
-      </>
-    )}
-  </div>
   )
 }
+
 
 
  
